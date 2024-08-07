@@ -209,16 +209,19 @@ public:
         // Whether the display is about to be powered on, or has been in PowerMode::ON
         // within the timeout of DisplayPowerTimer.
         bool powerOnImminent = false;
+        // Whether the expiry for high refresh rate on heuristic layers has been reached.
+        bool heuristicIdle = false;
 
         bool shouldEmitEvent() const { return !idle; }
 
         bool operator==(GlobalSignals other) const {
             return touch == other.touch && idle == other.idle &&
-                    powerOnImminent == other.powerOnImminent;
+                    powerOnImminent == other.powerOnImminent &&
+                    heuristicIdle == other.heuristicIdle;
         }
 
         auto toString() const {
-            return ftl::Concat("{touch=", touch, ", idle=", idle,
+            return ftl::Concat("{touch=", touch, ", idle=", idle, ", heuristicIdle=", heuristicIdle,
                                ", powerOnImminent=", powerOnImminent, '}');
         }
     };
