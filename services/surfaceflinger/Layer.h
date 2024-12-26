@@ -305,6 +305,8 @@ public:
     void writeCompositionStateToProto(perfetto::protos::LayerProto* layerProto,
                                       ui::LayerStack layerStack);
 
+    gui::WindowInfo::Type getWindowType() const { return mWindowType; }
+
     inline const State& getDrawingState() const { return mDrawingState; }
     inline State& getDrawingState() { return mDrawingState; }
 
