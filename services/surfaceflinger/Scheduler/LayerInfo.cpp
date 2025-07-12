@@ -499,7 +499,7 @@ FrameRateCompatibility LayerInfo::FrameRate::convertCompatibility(int8_t compati
             return FrameRateCompatibility::Exact;
         case ANATIVEWINDOW_FRAME_RATE_MIN:
             return FrameRateCompatibility::Min;
-        case ANATIVEWINDOW_FRAME_RATE_GTE:
+        case ANATIVEWINDOW_FRAME_RATE_COMPATIBILITY_GTE:
             return FrameRateCompatibility::Gte;
         case ANATIVEWINDOW_FRAME_RATE_NO_VOTE:
             return FrameRateCompatibility::NoVote;
@@ -557,7 +557,10 @@ LayerInfo::FrameRateSelectionStrategy LayerInfo::convertFrameRateSelectionStrate
 }
 
 bool LayerInfo::FrameRate::isNoVote() const {
-    return vote.type == FrameRateCompatibility::NoVote;
+    // A desired frame rate greater than or equal to 0 is treated as NoVote.
+    bool isNoVoteGte = FlagManager::getInstance().arr_setframerate_gte_enum() &&
+            vote.type == FrameRateCompatibility::Gte && !vote.rate.isValid();
+    return vote.type == FrameRateCompatibility::NoVote || isNoVoteGte;
 }
 
 bool LayerInfo::FrameRate::isValuelessType() const {
@@ -572,7 +575,12 @@ bool LayerInfo::FrameRate::isValuelessType() const {
         case FrameRateCompatibility::Default:
         case FrameRateCompatibility::ExactOrMultiple:
         case FrameRateCompatibility::Exact:
+            return false;
         case FrameRateCompatibility::Gte:
+            if (isNoVote()) {
+                // Special case: GTE 0 is same as NoVote.
+                return true;
+            }
             return false;
     }
 }
